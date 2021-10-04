@@ -59,10 +59,10 @@ for f = 1:N_Fc
 
     % Take number of significant edges in p matrix and divide by
     % number of all edges to get K
-    K(f) = nnz(p{1,f} < alpha)/N_all_edges;        
+    K(f) = nnz(p{1,f} < alpha)/N_all_edges;
     
     % Compute mean effect size of the significant network
-    R(f) = mean(r{1,f}(p{1,f} >= 0 & p{1,f} < alpha));
+    R(f) = mean(r{1,f}(p{1,f} < alpha));
     
 end
 
