@@ -18,10 +18,10 @@ function [p, r, K, R] = compute_clinical_correlation(Group, Neuroscore, covariat
 %   p: cell array {1 x N freq.} of p-value matrices [N parcels x N parcels]
 %   r: cell array {1 x N freq.} of r-value matrices [N parcels x N parcels]
 %   K: vector array of fraction K as a function of frequency [2 x N freq.]
-%       K(1,:) -> fraction of positive correlation (r >= 0)
+%       K(1,:) -> fraction of positive correlation (r > 0)
 %       K(2,:) -> fraction of negative correlation (r < 0)
 %   R: vector array of the mean effect size of the significant network as a function of frequency [2 x N freq.]
-%       R(1,:) -> effect size of positive correlation (r >= 0)
+%       R(1,:) -> effect size of positive correlation (r > 0)
 %       R(2,:) -> effect size of negative correlation (r < 0)
 
 
@@ -54,13 +54,13 @@ for f = 1:N_Fc
     end 
 
     % Compute number of significant correlations and divide by
-    % number of all connections            
-    K(1,f) = nnz(p{1,f} < alpha & r{1,f} >= 0)/N_all_edges;
+    % number of all connections    
+    K(1,f) = nnz(p{1,f} < alpha & r{1,f} > 0)/N_all_edges;
     K(2,f) = nnz(p{1,f} < alpha & r{1,f} < 0)/N_all_edges;
     
     % Compute mean effect size of the significant network
-    R(1,f) = mean(r{1,f}(r{1,f} >= 0 & p{1,f} >= 0 & p{1,f} < alpha));
-    R(2,f) = mean(r{1,f}(r{1,f} < 0 & p{1,f} >= 0 & p{1,f} < alpha));
+    R(1,f) = mean(r{1,f}(p{1,f} < alpha & r{1,f} > 0));
+    R(2,f) = mean(r{1,f}(p{1,f} < alpha & r{1,f} < 0));
 end
 
 end
