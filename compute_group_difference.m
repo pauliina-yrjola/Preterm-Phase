@@ -1,4 +1,4 @@
-function [p, r, K, R] = compute_group_difference(Group1, Group2, alpha, direction, N_all_edges)
+function [p, r, K, R] = compute_group_difference(Group1, Group2, alpha, direction, N_edges)
 % COMPUTE_GROUP_DIFFERENCE 
 % Computes statistical group difference by one-tailed Wilcoxon rank sum test
 % 26/11/2020 Pauliina Yrjölä, BABA Center, Finland
@@ -12,7 +12,7 @@ function [p, r, K, R] = compute_group_difference(Group1, Group2, alpha, directio
 %   direction: direction of Wilcoxon rank sum test. Options: 
 %       'right' (Group1 > Group2)
 %       'left' (Group1 < Group2)
-%   N_all_edges: number of edges for computing 
+%   N_edges: number of upper triangle edges for computing 
 %       K = N_significant_edges/N_all_edges
 %   
 %   OUTPUT ARGUMENTS
@@ -38,8 +38,8 @@ for f = 1:N_Fc
     % Loop through connectivity matrix (edges) 
     for Parcel1 = 1:N_parcels
         for Parcel2 = 1:N_parcels
-            edge_vector_Group1 = abs(squeeze(Group1{1,f}(Parcel1,Parcel2,:)));
-            edge_vector_Group2 = abs(squeeze(Group2{1,f}(Parcel1,Parcel2,:)));
+            edge_vector_Group1 = squeeze(Group1{1,f}(Parcel1,Parcel2,:));
+            edge_vector_Group2 = squeeze(Group2{1,f}(Parcel1,Parcel2,:));
 
             % Wilcoxon rank sum test 
             [p{1,f}(Parcel1,Parcel2), ~, stats] = ranksum(edge_vector_Group1, edge_vector_Group2, 'Tail', direction);
@@ -47,10 +47,14 @@ for f = 1:N_Fc
             % Compute effect size
             N_1 = size(edge_vector_Group1,1);
             N_2 = size(edge_vector_Group2,1);
+            N = N_1+N_2;
             
-            % Convert W (Wilcoxon rank sum statistic) into Mann-Whitney U-test statistic
-            W = stats.ranksum;
-            U = W - (N_1*(N_1+1)/2);
+            % Convert W into Mann-Whitney U-test statistic and take smaller U
+            W_1 = stats.ranksum; % rank sum statistic
+            W_2 = (N*(N+1)/2)- W_1; % rank sum statistic
+            U_1 = W_1 - (N_1*(N_1+1)/2); % Convert W (Wilcoxon rank sum statistic) into Mann-Whitney U-test statistic   
+            U_2 = W_2 - (N_2*(N_2+1)/2); % Convert W (Wilcoxon rank sum statistic) into Mann-Whitney U-test statistic 
+            U = min([U_1, U_2]); % take smaller U
             
             % Rank-biserial correlation
             r{1,f}(Parcel1,Parcel2) = 1-2*U/(N_1*N_2);
@@ -59,12 +63,13 @@ for f = 1:N_Fc
 
     % Take number of significant edges in p matrix and divide by
     % number of all edges to get K
-    K(f) = nnz(p{1,f} < alpha)/N_all_edges;
+    p_significant = p{1,f}.*(p{1,f} < alpha);
+    K(f) = nnz(triu(p_significant))/N_edges; 
     
     % Compute mean effect size of the significant network
-    R(f) = mean(r{1,f}(p{1,f} < alpha));
+    r_significant = r{1,f}.*(p{1,f} < alpha);
+    R(f) = sum(sum(triu(r_significant)))/nnz(triu(r_significant));
     
 end
 
 end
-
