@@ -1,6 +1,6 @@
 function [p, r, K, R] = compute_group_difference(Group1, Group2, alpha, direction, N_edges)
 % COMPUTE_GROUP_DIFFERENCE 
-% Computes statistical group difference by one-tailed Wilcoxon rank sum test
+% Computes statistical group difference by one-tailedWilcoxon rank sum test
 % 26/11/2020 Pauliina Yrjölä, BABA Center, Finland
 %
 %   INPUT ARGUMENTS
@@ -12,6 +12,7 @@ function [p, r, K, R] = compute_group_difference(Group1, Group2, alpha, directio
 %   direction: direction of Wilcoxon rank sum test. Options: 
 %       'right' (Group1 > Group2)
 %       'left' (Group1 < Group2)
+%       'both' (two-tailed)
 %   N_edges: number of upper triangle edges for computing 
 %       K = N_significant_edges/N_all_edges
 %   
