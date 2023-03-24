@@ -1,5 +1,5 @@
 # Preterm-Phase
-Phase-based networks of preterm infants and clinical correlation
+Group difference in networks of preterm infants and clinical correlation
 
 Matlab codes for analyses used in the papers:
 
